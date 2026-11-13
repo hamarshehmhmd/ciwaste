@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ciwaste"
+version = "0.1.0"
+description = "Find the GitHub Actions minutes you pay for and don't need: per-workflow cost, superseded runs, duplicate push+PR runs, flaky re-runs, hung jobs, and offline workflow lint."
+readme = "README.md"
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{name = "Mohammad Hamarsheh"}]
+requires-python = ">=3.9"
+dependencies = ["PyYAML>=5.4"]
+keywords = ["github-actions", "ci", "cost", "finops", "billing", "minutes", "devops", "workflow"]
+classifiers = [
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Build Tools",
+  "Topic :: Software Development :: Testing",
+]
+
+[project.urls]
+Homepage = "https://github.com/hamarshehmhmd/ciwaste"
+Issues = "https://github.com/hamarshehmhmd/ciwaste/issues"
+
+[project.scripts]
+ciwaste = "ciwaste.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

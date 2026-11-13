@@ -1,0 +1,50 @@
+name: ciwaste
+description: GitHub Actions cost + waste report (superseded runs, duplicate push+PR runs, flaky re-runs, hung jobs) in the job summary, with an optional budget gate.
+author: Mohammad Hamarsheh
+branding:
+  icon: dollar-sign
+  color: green
+inputs:
+  repo:
+    description: OWNER/REPO to analyze (default the current repository)
+    default: ${{ github.repository }}
+  days:
+    description: How many days back to look
+    default: "30"
+  max-runs:
+    description: Cap on runs fetched
+    default: "1000"
+  fail-over:
+    description: Fail if estimated waste per 30 days is over this many USD (empty = never fail)
+    default: ""
+  lint:
+    description: Also lint this repo's workflow files (true/false)
+    default: "true"
+  args:
+    description: Extra arguments for `ciwaste report`
+    default: ""
+  token:
+    description: Token with actions:read on the repo
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: python3 -m pip install --quiet --disable-pip-version-check "${{ github.action_path }}"
+    - if: inputs.lint == 'true'
+      shell: bash
+      run: ciwaste lint . --format github || true
+    - shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        INPUT_REPO: ${{ inputs.repo }}
+        INPUT_DAYS: ${{ inputs.days }}
+        INPUT_MAX_RUNS: ${{ inputs.max-runs }}
+        INPUT_FAIL_OVER: ${{ inputs.fail-over }}
+        INPUT_ARGS: ${{ inputs.args }}
+      run: |
+        set -euo pipefail
+        extra=()
+        if [ -n "$INPUT_FAIL_OVER" ]; then extra+=(--fail-over "$INPUT_FAIL_OVER"); fi
+        # shellcheck disable=SC2086
+        ciwaste report "$INPUT_REPO" --days "$INPUT_DAYS" --max-runs "$INPUT_MAX_RUNS" "${extra[@]}" $INPUT_ARGS
